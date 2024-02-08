@@ -4,16 +4,18 @@ from diet_analizing_logging_data import body_data
 
 s = requests.Session()
 
+# logowanie
 url = "https://pacjent.dietetykpro.pl/zaloguj"
-
 response1 = s.post(url, data=body_data)
 
+# odpowiedź przeglądarki z podanego adresu
 main_link = 'https://pacjent.dietetykpro.pl'
 response2 = s.get(main_link + '/moj-jadlospis/tydzien')
 
+# przetworzenie odpowiedzi na obiekt w pamięci, który można analizować (BeautifulSoup)
 page = BeautifulSoup(response2.text, 'html.parser')
-# przetwarza tekst z kodu HTML na obiekt w pamięci, który można analizować
 # zwraca bs4.element.ResultSet (w jednoelementowej liście) - w konsoli kod HTLM
+
 meals = page.find_all(class_='carousel-content tile-element dish-element')
 # zwraca bs4.element.ResultSet dla szukanej klasy
 # print("meals", meals[7].get_text())
@@ -84,12 +86,12 @@ for meal in meals:
 shoping_list = create_shopping_list(all_ingredients_for_meals)
 
 
-def display():
-    alphabetical_list = []
-    for ingredient in shoping_list:
-        alphabetical_list.append([ingredient.name, ingredient.amount, ingredient.unit])
-    return sorted(alphabetical_list)
-    # return sorted(shoping_list, key=lambda item: item.name)
-
-
-print(*display(), sep="\n")
+# def display():
+#     alphabetical_list = []
+#     for ingredient in shoping_list:
+#         alphabetical_list.append([ingredient.name, ingredient.amount, ingredient.unit])
+#     return sorted(alphabetical_list)
+#     # return sorted(shoping_list, key=lambda item: item.name)
+#
+#
+# print(*display(), sep="\n")
