@@ -27,6 +27,9 @@ class Ingredient:
         self.amount = amount
         self.unit = unit
 
+    def __str__(self):
+        return f'{self.name} {self.amount} {self.unit}'
+
 
 # Wyświetlanie listy wszystkich śniadań
 def lists_of_breakfasts(m, m_type):
@@ -67,7 +70,7 @@ def create_shopping_list(all_ingredients):
         else:
             shopping_list.append(ingredient)
 
-    return shopping_list
+    return sorted(shopping_list, key=lambda item: item.name)
 
 
 all_ingredients_for_meals = []
@@ -83,15 +86,6 @@ for meal in meals:
 
     all_ingredients_for_meals += create_ingredients_list_for_meal(json_object['products'])
 
-shoping_list = create_shopping_list(all_ingredients_for_meals)
+shopping_list = create_shopping_list(all_ingredients_for_meals)
 
-
-# def display():
-#     alphabetical_list = []
-#     for ingredient in shoping_list:
-#         alphabetical_list.append([ingredient.name, ingredient.amount, ingredient.unit])
-#     return sorted(alphabetical_list)
-#     # return sorted(shoping_list, key=lambda item: item.name)
-#
-#
-# print(*display(), sep="\n")
+print(*shopping_list, sep="\n")
