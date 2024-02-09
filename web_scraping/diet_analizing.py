@@ -1,6 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 from diet_analizing_logging_data import body_data
+import locale
+
+locale.setlocale(locale.LC_COLLATE, "pl_PL.UTF-8")
 
 s = requests.Session()
 
@@ -70,7 +73,7 @@ def create_shopping_list(all_ingredients):
         else:
             shopping_list.append(ingredient)
 
-    return sorted(shopping_list, key=lambda item: item.name)
+    return sorted(shopping_list, key=lambda item: locale.strxfrm(item.name))
 
 
 all_ingredients_for_meals = []
