@@ -34,11 +34,11 @@ class Ingredient:
         return f'{self.name} {self.amount} {self.unit}'
 
 
-# Wyświetlanie listy wszystkich śniadań
-def lists_of_breakfasts(m, m_type):
-    if m_type[0].text == "Śniadanie":
-        breakfast = m.find_all(class_='single-position link-position')
-        print(breakfast[0].text)  # Lista śniadań
+# zapisywanie do pliku listy posiłków danego typu wraz z indeksem
+def lists_of_meals(meal_list: list):
+    for number, name in meal_list:
+        plik.write(str(number) + ' ' + name + "\n")
+    plik.write("\n")
 
 
 def create_recipe_link():
@@ -77,10 +77,33 @@ def create_shopping_list(all_ingredients):
 
 
 all_ingredients_for_meals = []
-for meal in meals:
+
+breakfasts = []
+second_breaksfast = []
+dinner = []
+supper = []
+
+plik = open('list_meals.txt', 'w')
+for index, meal in enumerate(meals):
     meal_type = meal.find_all(class_='meal-type-name')
     # ta klasa znajduje się w klasie 'carousel-content tile-element dish-element' - obiekt meals
-    # lists_of_breakfasts(meal, meal_type)
+
+    if meal_type[0].text == "Śniadanie":
+        meal_name = meal.find_all(class_='single-position link-position')
+        breakfasts.append((index, meal_name[0].text))
+
+    if meal_type[0].text == "II śniadanie":
+        meal_name = meal.find_all(class_='single-position link-position')
+        second_breaksfast.append((index, meal_name[0].text))
+
+    if meal_type[0].text == "Obiad":
+        meal_name = meal.find_all(class_='single-position link-position')
+        dinner.append((index, meal_name[0].text))
+
+    if meal_type[0].text == "Kolacja":
+        meal_name = meal.find_all(class_='single-position link-position')
+        supper.append((index, meal_name[0].text))
+
     create_recipe_link()
 
     response3 = s.get(create_recipe_link(), headers={'X-Requested-With': 'XMLHttpRequest'})
@@ -89,6 +112,10 @@ for meal in meals:
 
     all_ingredients_for_meals += create_ingredients_list_for_meal(json_object['products'])
 
-shopping_list = create_shopping_list(all_ingredients_for_meals)
+lists_of_meals(breakfasts)
+lists_of_meals(second_breaksfast)
+lists_of_meals(dinner)
+lists_of_meals(supper)
 
-print(*shopping_list, sep="\n")
+# shopping_list = create_shopping_list(all_ingredients_for_meals)
+# print(*shopping_list, sep="\n")
