@@ -83,6 +83,9 @@ second_breaksfast = []
 dinner = []
 supper = []
 
+#  Wpisać indeksy z pliku list_meals.txt -> utworzy się lista zakupów dla wybranych produktów
+indexes = [0, 3]
+
 plik = open('list_meals.txt', 'w')
 for index, meal in enumerate(meals):
     meal_type = meal.find_all(class_='meal-type-name')
@@ -104,6 +107,9 @@ for index, meal in enumerate(meals):
         meal_name = meal.find_all(class_='single-position link-position')
         supper.append((index, meal_name[0].text))
 
+    if index not in indexes:
+        continue
+
     create_recipe_link()
 
     response3 = s.get(create_recipe_link(), headers={'X-Requested-With': 'XMLHttpRequest'})
@@ -116,6 +122,7 @@ lists_of_meals(breakfasts)
 lists_of_meals(second_breaksfast)
 lists_of_meals(dinner)
 lists_of_meals(supper)
+plik.close()
 
-# shopping_list = create_shopping_list(all_ingredients_for_meals)
-# print(*shopping_list, sep="\n")
+shopping_list = create_shopping_list(all_ingredients_for_meals)
+print(*shopping_list, sep="\n")
