@@ -3,6 +3,14 @@
 Znajdują się tu różne, krótkie zadania, wykonane w celu praktykowania nabytej wiedzy dotyczącej programowania w Pythonie.
 Zadania te są wykonane samodzielnie i mogą nie być w pełni kompletne, ponieważ służyły przećwiczeniu określonych zagadnień.
 
+### Web scraping
+
+Moje pierwsze kroki w web scrapingu. Aby przetestować kod, trzeba niestety znać login
+i hasło. Jednak zdecydowałam się go udostępnić tutaj, aby można było zobaczyć kod.
+Program ułatwia mi robienie list zakupów, z przepisów od dietetyka.
+Korzystając z pobranych danych tworzę jedną, ogólną listę składników z określonych przepisów, 
+czego na stronie nie da się zrobić (dostępna jest tylko lista na konkretny dzień lub cały tydzień).
+
 ### PCEP - exercises
 Wybrane zadania realizowane podczas kursu Python Essentials 1.
 
