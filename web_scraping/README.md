@@ -14,7 +14,12 @@ You can only read my code.
 4. creating list meals: list of elements from class carousel-content tile-element dish-element 
 from website
 5. creating a shopping list by iterate through meals:
-* creating list of object of class Ingredient for every meal
-* creating one list of all ingredients by adding previous lists
-* creating shopping list from list of all ingredients - if object exists in the list, 
-the program change the amount of them, if it does not exist, add to list 
+* creating lists of names from different types of meals 
+(breakfasts, second_breakfast, dinner, super) and saving them to file list_meals.txt
+* creating list of object of class Ingredient for chosen meals
+* creating one list of all ingredients for chosen meals by adding previous lists
+* creating shopping list from list of all ingredients from chosen meals - 
+if object exists in the list, the program change the amount of them, if it does not exist, 
+add to list 
+
+
