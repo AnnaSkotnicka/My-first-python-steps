@@ -21,6 +21,8 @@ page = BeautifulSoup(response2.text, 'html.parser')
 # zwraca bs4.element.ResultSet (w jednoelementowej liście) - w konsoli kod HTLM
 
 meals = page.find_all(class_='carousel-content tile-element dish-element')
+
+
 # zwraca bs4.element.ResultSet dla szukanej klasy
 # print("meals", meals[7].get_text())
 
@@ -47,30 +49,34 @@ def create_recipe_link(m):
     return main_link + dish_link
 
 
-def create_ingredients_list_for_meal(meal):
+def create_ingredients_list_for_meal(meal, amount):
     dishes = meal.find_all(class_='single-position')
 
     all_ingredients = []
     unit = {1: "ml", 2: "g"}
-    for dish in dishes:
-        if 'link-position' in dish['class']:
-            response3 = s.get(create_recipe_link(dish), headers={'X-Requested-With': 'XMLHttpRequest'})
-            # print(response3.json())  # obiekt json to słownik
-            json_object = response3.json()['params']
-            products = json_object['products']
+    while amount >= 1:
+        for dish in dishes:
+            if 'link-position' in dish['class']:
+                response3 = s.get(create_recipe_link(dish), headers={'X-Requested-With': 'XMLHttpRequest'})
+                # print(response3.json())  # obiekt json to słownik
+                json_object = response3.json()['params']
+                products = json_object['products']
 
-            for product in products:
-                product_information = Ingredient(name=product['name'],
-                                                 amount=float(product['size']) * float(json_object['element']['size']),
-                                                 unit=unit[int(product['type'])])
+                for product in products:
+                    product_information = Ingredient(name=product['name'],
+                                                     amount=float(product['size']) * float(
+                                                         json_object['element']['size']),
+                                                     unit=unit[int(product['type'])])
+                    all_ingredients.append(product_information)
+            else:
+                dish_elements = re.search(r'^([\w ]+) \((\d+) (\w+)\)$', dish.text)
+
+                product_information = Ingredient(name=dish_elements.group(1),
+                                                 amount=float(dish_elements.group(2)),
+                                                 unit=dish_elements.group(3))
                 all_ingredients.append(product_information)
-        else:
-            dish_elements = re.search(r'^([\w ]+) \((\d+) (\w+)\)$', dish.text)
 
-            product_information = Ingredient(name=dish_elements.group(1),
-                                             amount=float(dish_elements.group(2)),
-                                             unit=dish_elements.group(3))
-            all_ingredients.append(product_information)
+        amount = amount - 1
     return all_ingredients
 
 
@@ -101,7 +107,7 @@ dinner = []
 supper = []
 
 #  Wpisać indeksy z pliku list_meals.txt -> utworzy się lista zakupów dla wybranych produktów
-indexes = [6, 10]
+indexes = {6: 1, 10: 2}
 
 plik = open('list_meals.txt', 'w')
 for index, meal in enumerate(meals):
@@ -131,7 +137,8 @@ for index, meal in enumerate(meals):
     if index not in indexes:
         continue
 
-    all_ingredients_for_meals += create_ingredients_list_for_meal(meal)
+    amount_of_meals = indexes[index]
+    all_ingredients_for_meals += create_ingredients_list_for_meal(meal, amount_of_meals)
 
 lists_of_meals(breakfasts)
 lists_of_meals(second_breaksfast)
