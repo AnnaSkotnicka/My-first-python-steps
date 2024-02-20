@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from diet_analizing_logging_data import body_data
 import locale
+import re
 
 locale.setlocale(locale.LC_COLLATE, "pl_PL.UTF-8")
 
@@ -41,19 +42,35 @@ def lists_of_meals(meal_list: list):
     plik.write("\n")
 
 
-def create_recipe_link():
-    breakfast_link = (meal.find("a"))['href']
-    link = main_link + breakfast_link
-    return link
+def create_recipe_link(m):
+    dish_link = m.find("a")['href']
+    return main_link + dish_link
 
 
-def create_ingredients_list_for_meal(products):
+def create_ingredients_list_for_meal(meal):
+    dishes = meal.find_all(class_='single-position')
+
     all_ingredients = []
-    for product in products:
-        product_information = Ingredient(name=product['name'],
-                                         amount=float(product['size']) * float(json_object['element']['size']),
-                                         unit="g")
-        all_ingredients.append(product_information)
+    unit = {1: "ml", 2: "g"}
+    for dish in dishes:
+        if 'link-position' in dish['class']:
+            response3 = s.get(create_recipe_link(dish), headers={'X-Requested-With': 'XMLHttpRequest'})
+            # print(response3.json())  # obiekt json to słownik
+            json_object = response3.json()['params']
+            products = json_object['products']
+
+            for product in products:
+                product_information = Ingredient(name=product['name'],
+                                                 amount=float(product['size']) * float(json_object['element']['size']),
+                                                 unit=unit[int(product['type'])])
+                all_ingredients.append(product_information)
+        else:
+            dish_elements = re.search(r'^([\w ]+) \((\d+) (\w+)\)$', dish.text)
+
+            product_information = Ingredient(name=dish_elements.group(1),
+                                             amount=float(dish_elements.group(2)),
+                                             unit=dish_elements.group(3))
+            all_ingredients.append(product_information)
     return all_ingredients
 
 
@@ -84,7 +101,7 @@ dinner = []
 supper = []
 
 #  Wpisać indeksy z pliku list_meals.txt -> utworzy się lista zakupów dla wybranych produktów
-indexes = [0, 3]
+indexes = [6, 10]
 
 plik = open('list_meals.txt', 'w')
 for index, meal in enumerate(meals):
@@ -92,31 +109,29 @@ for index, meal in enumerate(meals):
     # ta klasa znajduje się w klasie 'carousel-content tile-element dish-element' - obiekt meals
 
     if meal_type[0].text == "Śniadanie":
-        meal_name = meal.find_all(class_='single-position link-position')
-        breakfasts.append((index, meal_name[0].text))
+        dish_names = meal.find_all(class_='single-position link-position')
+        for dish_name in dish_names:
+            breakfasts.append((index, dish_name.text))
 
     if meal_type[0].text == "II śniadanie":
-        meal_name = meal.find_all(class_='single-position link-position')
-        second_breaksfast.append((index, meal_name[0].text))
+        dish_names = meal.find_all(class_='single-position link-position')
+        for dish_name in dish_names:
+            second_breaksfast.append((index, dish_name.text))
 
     if meal_type[0].text == "Obiad":
-        meal_name = meal.find_all(class_='single-position link-position')
-        dinner.append((index, meal_name[0].text))
+        dish_names = meal.find_all(class_='single-position link-position')
+        for dish_name in dish_names:
+            dinner.append((index, dish_name.text))
 
     if meal_type[0].text == "Kolacja":
-        meal_name = meal.find_all(class_='single-position link-position')
-        supper.append((index, meal_name[0].text))
+        dish_names = meal.find_all(class_='single-position link-position')
+        for dish_name in dish_names:
+            supper.append((index, dish_name.text))
 
     if index not in indexes:
         continue
 
-    create_recipe_link()
-
-    response3 = s.get(create_recipe_link(), headers={'X-Requested-With': 'XMLHttpRequest'})
-    # print(response3.json())  # obiekt json to słownik
-    json_object = response3.json()['params']
-
-    all_ingredients_for_meals += create_ingredients_list_for_meal(json_object['products'])
+    all_ingredients_for_meals += create_ingredients_list_for_meal(meal)
 
 lists_of_meals(breakfasts)
 lists_of_meals(second_breaksfast)
@@ -126,3 +141,7 @@ plik.close()
 
 shopping_list = create_shopping_list(all_ingredients_for_meals)
 print(*shopping_list, sep="\n")
+
+# Podwajanie porcji
+# dopisać w nawiasie co do jakiego przepisu??
+# dopisać przelicznik w sztukach??
